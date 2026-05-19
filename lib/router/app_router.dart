@@ -6,6 +6,7 @@ import '../features/money_crunch/screens/money_crunch_screen.dart';
 import '../features/chrono_planning/screens/chrono_planning_screen.dart';
 import '../features/hero_feed/screens/hero_feed_screen.dart';
 import '../features/projects/screens/project_list_screen.dart';
+import '../features/price_compare/screens/price_compare_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/splash',
@@ -32,6 +33,9 @@ final appRouter = GoRouter(
         ]),
         StatefulShellBranch(routes: [
           GoRoute(path: '/hero-feed', builder: (_, __) => const HeroFeedScreen()),
+        ]),
+        StatefulShellBranch(routes: [
+          GoRoute(path: '/price-hunter', builder: (_, __) => const PriceCompareScreen()),
         ]),
       ],
     ),

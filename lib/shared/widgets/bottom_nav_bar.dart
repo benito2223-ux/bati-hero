@@ -53,7 +53,8 @@ class MainScaffold extends ConsumerWidget {
     _TabInfo(icon: Icons.shopping_cart_rounded, label: 'SHOP-ZAP', color: AppColors.electricYellow),
     _TabInfo(icon: Icons.bolt_rounded, label: 'MONEY', color: AppColors.neonPink),
     _TabInfo(icon: Icons.calendar_month_rounded, label: 'CHRONO', color: AppColors.neonCyan),
-    _TabInfo(icon: Icons.photo_camera_rounded, label: 'HERO-FEED', color: AppColors.neonPink),
+    _TabInfo(icon: Icons.photo_camera_rounded, label: 'FEED', color: AppColors.neonPink),
+    _TabInfo(icon: Icons.price_check_rounded, label: 'PRIX', color: AppColors.warning),
   ];
 
   @override

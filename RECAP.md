@@ -6,6 +6,27 @@
 
 ---
 
+## [0.4.0] — 2026-05-19 · Comparateur de prix PRIX-HUNTER 🎯
+
+### ✅ Ajouté
+- **PriceCompareScreen** — 5ème onglet "PRIX" dans la bottom nav
+- Création de comparaison : scan code-barres ou saisie manuelle du nom produit
+- Entrée de prix par magasin (Leroy Merlin, Castorama, Brico Dépôt, Mr Bricolage, Amazon)
+- Bouton "ouvrir le site" par magasin → cherche le produit directement
+- Bar chart fl_chart comparatif avec meilleur prix en vert
+- Badge économies calculé automatiquement (pire prix - meilleur prix)
+- Bannière stats : nb produits comparés + total économies potentielles
+- Persistance locale via `LocalStorageService.kPriceEntries`
+- `PriceEntry` model avec `StorePrice` + `toJson`/`fromJson`
+- `PriceCompareNotifier` StateNotifier avec `setStorePrice`, `addEntry`, `removeEntry`
+
+### 🔧 Technique
+- Nouveau modèle `ComparatorStore` avec couleurs de marque + URLs de recherche
+- 5ème branche dans `StatefulShellRoute.indexedStack` → `/price-hunter`
+- Bottom nav mis à jour (5 onglets)
+
+---
+
 ## [0.3.0] — 2026-05-19 · Persistance locale + sync préparée
 
 ### ✅ Ajouté

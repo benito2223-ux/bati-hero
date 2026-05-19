@@ -67,4 +67,5 @@ class LocalStorageService {
   static const kShopItems = 'bh_shop_items';
   static const kExpenses = 'bh_expenses';
   static const kBudget = 'bh_budget';
+  static const kPriceEntries = 'bh_price_entries';
 }
