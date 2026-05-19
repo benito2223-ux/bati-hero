@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../../../theme/app_colors.dart';
 import '../models/project.dart';
 import '../providers/project_provider.dart';
+import '../../auth/providers/auth_provider.dart';
 
 class ProjectListScreen extends ConsumerWidget {
   const ProjectListScreen({super.key});
@@ -14,6 +15,7 @@ class ProjectListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final projects = ref.watch(projectsProvider);
+    final user = ref.watch(currentUserProvider);
 
     return Scaffold(
       backgroundColor: AppColors.bgDeep,
@@ -33,6 +35,59 @@ class ProjectListScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(8.0),
           child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
         ),
+        actions: [
+          if (user != null)
+            PopupMenuButton(
+              icon: CircleAvatar(
+                radius: 16,
+                backgroundColor: AppColors.electricYellow.withOpacity(0.2),
+                backgroundImage: user.photoURL != null
+                    ? NetworkImage(user.photoURL!)
+                    : null,
+                child: user.photoURL == null
+                    ? Text(
+                        (user.displayName ?? user.email ?? '?')[0].toUpperCase(),
+                        style: GoogleFonts.bangers(
+                            color: AppColors.electricYellow, fontSize: 14),
+                      )
+                    : null,
+              ),
+              color: AppColors.bgCard,
+              itemBuilder: (_) => <PopupMenuEntry>[
+                PopupMenuItem(
+                  enabled: false,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(user.displayName ?? '',
+                          style: GoogleFonts.bangers(
+                              color: AppColors.electricYellow, fontSize: 15)),
+                      Text(user.email ?? '',
+                          style: GoogleFonts.montserrat(
+                              color: AppColors.textSecondary, fontSize: 11)),
+                    ],
+                  ),
+                ),
+                const PopupMenuDivider(),
+                PopupMenuItem(
+                  onTap: () async {
+                    await AuthService.signOut();
+                    // router redirige vers /login automatiquement
+                  },
+                  child: Row(
+                    children: [
+                      const Icon(Icons.logout_rounded,
+                          color: AppColors.danger, size: 18),
+                      const SizedBox(width: 8),
+                      Text('Déconnexion',
+                          style: GoogleFonts.montserrat(
+                              color: AppColors.danger, fontSize: 14)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
       body: Column(
         children: [

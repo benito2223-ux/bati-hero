@@ -6,6 +6,28 @@
 
 ---
 
+## [0.5.0] — 2026-05-19 · Mode collaboratif Firebase 🔥
+
+### ✅ Ajouté
+- **Google Sign-In** avec écran de login Comics/Pop Art
+- **Firebase Auth** — authStateProvider (StreamProvider) + AuthService
+- **Firestore sync temps réel** sur tous les providers :
+  - `projectsProvider` → `/users/{uid}/projects`
+  - `shopZapProvider` → `/users/{uid}/shopItems`
+  - `moneyCrunchProvider` → `/users/{uid}/expenses` + `/users/{uid}/meta/settings`
+  - `priceCompareProvider` → `/users/{uid}/priceEntries`
+- **Migration automatique** : données locales pushées vers Firestore au premier login
+- **Déconnexion** : avatar + menu dans ProjectListScreen
+- **Auth redirect** dans go_router : non connecté → `/login`, connecté → `/`
+
+### 🔧 Technique
+- Firebase v3.x (core ^3.4.1, auth ^5.1.0, firestore ^5.4.0) compatible geolocator v13
+- `appRouter` migré en `appRouterProvider` (Provider<GoRouter>) pour lire authStateProvider
+- `FirestoreService` centralisé avec streams + CRUD + migration batch
+- `unawaited()` pour les initialisations async dans les constructeurs StateNotifier
+
+---
+
 ## [0.4.0] — 2026-05-19 · Comparateur de prix PRIX-HUNTER 🎯
 
 ### ✅ Ajouté

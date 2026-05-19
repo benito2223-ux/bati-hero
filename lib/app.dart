@@ -12,7 +12,7 @@ class BatiHeroApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Bâti-Hero',
       theme: AppTheme.dark,
-      routerConfig: appRouter,
+      routerConfig: ref.watch(appRouterProvider),
       debugShowCheckedModeBanner: false,
       locale: const Locale('fr', 'FR'),
       supportedLocales: const [Locale('fr', 'FR'), Locale('en', 'US')],

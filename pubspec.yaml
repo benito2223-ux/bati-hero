@@ -18,15 +18,13 @@ dependencies:
   # Navigation
   go_router: ^13.2.4
 
-  # Firebase — décommenter après "flutterfire configure"
-  # firebase_core: ^2.27.1
-  # firebase_auth: ^4.17.9
-  # cloud_firestore: ^4.15.9
-  # firebase_storage: ^11.6.10
+  # Firebase
+  firebase_core: ^3.4.1
+  firebase_auth: ^5.1.0
+  cloud_firestore: ^5.4.0
 
-  # Google — décommenter après config Firebase
-  # google_sign_in: ^6.2.1
-  # google_mlkit_text_recognition: ^0.11.0
+  # Google Sign-In
+  google_sign_in: ^6.2.1
 
   # Media & Input
   speech_to_text: ^6.6.2
