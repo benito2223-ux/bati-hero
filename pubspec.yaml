@@ -1,0 +1,63 @@
+name: bati_hero
+description: L'app qui transforme ton chantier en aventure épique !
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.5.1
+
+  # Navigation
+  go_router: ^13.2.4
+
+  # Firebase — décommenter après "flutterfire configure"
+  # firebase_core: ^2.27.1
+  # firebase_auth: ^4.17.9
+  # cloud_firestore: ^4.15.9
+  # firebase_storage: ^11.6.10
+
+  # Google — décommenter après config Firebase
+  # google_sign_in: ^6.2.1
+  # google_mlkit_text_recognition: ^0.11.0
+
+  # Media & Input
+  speech_to_text: ^6.6.2
+  image_picker: ^1.1.2
+  mobile_scanner: ^5.2.3
+
+  # UI
+  google_fonts: ^6.2.1
+  cached_network_image: ^3.3.1
+  fl_chart: ^0.70.2
+
+  # Location & Maps
+  geolocator: ^13.0.2
+  url_launcher: ^6.3.1
+
+  # Network
+  http: ^1.2.2
+
+  # Utils
+  intl: ^0.20.2
+  uuid: ^4.4.0
+  shared_preferences: ^2.2.3
+  permission_handler: ^11.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/images/logo.png
