@@ -6,19 +6,27 @@ import 'app.dart';
 import 'firebase_options.dart';
 import 'shared/services/local_storage_service.dart';
 
-void main() async {
+Future<void> _initializeApp() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Persistance locale
   await LocalStorageService.init();
 
-  // Firebase
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Firebase — init avec gestion d'erreur
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  } catch (e) {
+    debugPrint('Firebase init error: $e');
+    // Continue même si Firebase échoue (fallback auth local)
+  }
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
   ));
+}
 
+void main() async {
+  await _initializeApp();
   runApp(const ProviderScope(child: BatiHeroApp()));
 }

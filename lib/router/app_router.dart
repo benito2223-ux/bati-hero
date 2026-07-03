@@ -20,6 +20,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Pendant le chargement auth, rester sur splash
       if (authState.isLoading) return '/splash';
 
+      // Firebase error = fallback au local (pas d'auth, va direct à accueil)
+      if (authState.hasError) return '/';
+
       final isLoggedIn = authState.valueOrNull != null;
       final path = state.uri.path;
 
