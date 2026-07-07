@@ -6,6 +6,18 @@
 
 ---
 
+## [0.5.2] — 2026-07-07 · Fix connexion Google (Firebase ne s'initialisait jamais)
+
+### 🐛 Bug critique corrigé
+- **Cause racine** : le fichier généré `web_plugin_registrant.dart` (`.dart_tool/`) était périmé — il datait d'avant l'ajout des dépendances Firebase et n'appelait jamais `FirebaseCoreWeb.registerWith(registrar)`. Résultat : Firebase ne s'initialisait JAMAIS sur le web (`PlatformException(channel-error, ... FirebaseCoreHostApi.initializeCore)`), et toute tentative de connexion Google échouait silencieusement (fallback vers mode local).
+- **Fix** : `flutter clean` complet pour forcer la régénération de tous les fichiers de build, y compris le registrant des plugins web. Confirmé : `FirebaseCoreWeb`, `FirebaseAuthWeb`, `FirebaseFirestoreWeb`, `GoogleSignInPlugin` sont maintenant bien enregistrés.
+- Log de confirmation en prod : `Initializing Firebase firebase_auth` (plus aucune erreur channel-error)
+
+### 📝 Leçon
+- Après tout ajout de dépendance Firebase/plugin natif, faire `flutter clean && flutter pub get` avant de rebuild — le cache incrémental de `.dart_tool/` peut ne pas régénérer le registrant de plugins web correctement.
+
+---
+
 ## [0.5.1] — 2026-07-07 · Fix écran blanc / non-cliquable
 
 ### 🐛 Bug critique corrigé
