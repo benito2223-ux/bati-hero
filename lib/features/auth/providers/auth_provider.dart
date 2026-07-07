@@ -1,12 +1,24 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-/// Stream de l'état d'authentification Firebase.
-final authStateProvider = StreamProvider<User?>(
-  (ref) => FirebaseAuth.instance.authStateChanges(),
-);
+/// Stream brut de l'état d'authentification Firebase.
+/// Si Firebase n'a pas pu s'initialiser (échec réseau, config web, etc.),
+/// on émet `null` (non connecté) au lieu de faire planter l'app.
+/// Exposé en dehors de Riverpod pour servir de `refreshListenable` stable au router
+/// (voir GoRouterRefreshStream dans app_router.dart).
+Stream<User?> authChangesStream() {
+  if (Firebase.apps.isEmpty) return Stream.value(null);
+  try {
+    return FirebaseAuth.instance.authStateChanges();
+  } catch (_) {
+    return Stream.value(null);
+  }
+}
+
+final authStateProvider = StreamProvider<User?>((ref) => authChangesStream());
 
 /// Utilisateur courant (nullable).
 final currentUserProvider = Provider<User?>((ref) {
@@ -16,6 +28,9 @@ final currentUserProvider = Provider<User?>((ref) {
 /// Service de connexion/déconnexion.
 class AuthService {
   static Future<User?> signInWithGoogle() async {
+    if (Firebase.apps.isEmpty) {
+      throw Exception('Firebase indisponible — réessaie plus tard');
+    }
     try {
       if (kIsWeb) {
         // Web : popup Firebase natif

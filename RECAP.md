@@ -6,6 +6,22 @@
 
 ---
 
+## [0.5.1] — 2026-07-07 · Fix écran blanc / non-cliquable
+
+### 🐛 Bug critique corrigé
+- **Cause racine** : `appRouterProvider` était un `Provider<GoRouter>` qui se recréait entièrement à chaque changement de `authStateProvider` (StreamProvider). Ça détruisait tout l'arbre de navigation en cours — y compris le `SplashScreen` en pleine animation — provoquant `AnimationController.forward() called after dispose()`. L'app plantait silencieusement juste après l'ouverture, d'où "s'ouvre mais rien n'est cliquable".
+- **Fix** : le `GoRouter` est maintenant créé UNE SEULE FOIS pour toute la durée de vie de l'app (`GoRouterRefreshStream` — un `ChangeNotifier` qui pilote `router.refresh()` sans jamais recréer l'objet `GoRouter`). L'état d'auth est lu via `ref.read` (jamais `.watch`) dans `redirect`.
+- `authStateProvider` ne plante plus si Firebase échoue à s'initialiser (fallback `Stream.value(null)`)
+- `main.dart` : `runZonedGuarded` + `FlutterError.onError` pour logger proprement toute erreur future au lieu de crasher silencieusement
+- CanvasKit chargé depuis les fichiers locaux (`canvaskit/`) plutôt que le CDN externe gstatic.com — évite un blocage par pare-feu/bloqueur de pub qui empêcherait Flutter Web de peindre son premier frame
+
+### 🔧 Technique
+- `lib/router/app_router.dart` réécrit avec `GoRouterRefreshStream`
+- `lib/features/auth/providers/auth_provider.dart` : `authChangesStream()` exposé en fonction brute (hors Riverpod) pour servir de `refreshListenable`
+- `web/flutter_bootstrap.js` personnalisé : `canvasKitBaseUrl: "canvaskit/"`
+
+---
+
 ## [0.5.0] — 2026-05-19 · Mode collaboratif Firebase 🔥
 
 ### ✅ Ajouté

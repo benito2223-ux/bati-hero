@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/splash_screen.dart';
@@ -11,17 +13,37 @@ import '../features/hero_feed/screens/hero_feed_screen.dart';
 import '../features/projects/screens/project_list_screen.dart';
 import '../features/price_compare/screens/price_compare_screen.dart';
 
-final appRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
+/// Transforme un Stream en Listenable pour piloter go_router.refresh()
+/// sans jamais recréer l'objet GoRouter lui-même (ce qui détruirait
+/// l'arbre de navigation en cours, ex: le splash screen en pleine animation).
+class GoRouterRefreshStream extends ChangeNotifier {
+  late final StreamSubscription<dynamic> _subscription;
 
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen((_) => notifyListeners());
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
+
+/// GoRouter créé UNE SEULE FOIS pour toute la durée de vie de l'app.
+/// L'état d'auth est lu via `ref.read` (jamais `.watch`) dans `redirect`
+/// pour ne pas recréer ce Provider — seul `refreshListenable` déclenche
+/// une réévaluation de `redirect` quand l'auth change.
+final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/splash',
+    refreshListenable: GoRouterRefreshStream(authChangesStream()),
     redirect: (context, state) {
-      // Pendant le chargement auth, rester sur splash
-      if (authState.isLoading) return '/splash';
+      final authState = ref.read(authStateProvider);
 
-      // Firebase error = fallback au local (pas d'auth, va direct à accueil)
-      if (authState.hasError) return '/';
+      // Pendant le chargement auth, rester sur splash
+      if (authState.isLoading) return null;
 
       final isLoggedIn = authState.valueOrNull != null;
       final path = state.uri.path;
@@ -29,8 +51,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Pas connecté → login (sauf splash)
       if (!isLoggedIn && path != '/splash' && path != '/login') return '/login';
 
-      // Connecté sur login → accueil
-      if (isLoggedIn && path == '/login') return '/';
+      // Connecté sur login ou splash → accueil
+      if (isLoggedIn && (path == '/login' || path == '/splash')) return '/';
 
       return null;
     },

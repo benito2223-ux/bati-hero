@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,7 +27,15 @@ Future<void> _initializeApp() async {
   ));
 }
 
-void main() async {
-  await _initializeApp();
-  runApp(const ProviderScope(child: BatiHeroApp()));
+void main() {
+  runZonedGuarded(() async {
+    await _initializeApp();
+    FlutterError.onError = (details) {
+      FlutterError.presentError(details);
+      debugPrint('FlutterError: ${details.exceptionAsString()}');
+    };
+    runApp(const ProviderScope(child: BatiHeroApp()));
+  }, (error, stack) {
+    debugPrint('Uncaught zone error: $error\n$stack');
+  });
 }
