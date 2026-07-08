@@ -48,30 +48,21 @@ class ProjectsNotifier extends StateNotifier<List<Project>> {
   void _persistLocal() => _saveLocal(state);
 
   void addProject(Project project) {
-    if (_uid != null) {
-      FirestoreService.setProject(_uid!, project);
-    } else {
-      state = [...state, project];
-      _persistLocal();
-    }
+    state = [...state, project];
+    _persistLocal();
+    if (_uid != null) FirestoreService.setProject(_uid!, project);
   }
 
   void removeProject(String id) {
-    if (_uid != null) {
-      FirestoreService.deleteProject(_uid!, id);
-    } else {
-      state = state.where((p) => p.id != id).toList();
-      _persistLocal();
-    }
+    state = state.where((p) => p.id != id).toList();
+    _persistLocal();
+    if (_uid != null) FirestoreService.deleteProject(_uid!, id);
   }
 
   void updateProject(Project updated) {
-    if (_uid != null) {
-      FirestoreService.setProject(_uid!, updated);
-    } else {
-      state = state.map((p) => p.id == updated.id ? updated : p).toList();
-      _persistLocal();
-    }
+    state = state.map((p) => p.id == updated.id ? updated : p).toList();
+    _persistLocal();
+    if (_uid != null) FirestoreService.setProject(_uid!, updated);
   }
 }
 

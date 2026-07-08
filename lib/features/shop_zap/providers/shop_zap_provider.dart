@@ -40,6 +40,9 @@ class ShopZapNotifier extends StateNotifier<List<ShoppingItem>> {
     if (!hasData) {
       await FirestoreService.migrateShopItems(_uid!, state);
     }
+    // Le stream reconcilie l'état en arrière-plan (multi-device),
+    // mais l'UI n'attend jamais après lui : chaque action est appliquée
+    // localement tout de suite (voir plus bas).
     _sub = FirestoreService.shopItemsStream(_uid!).listen((items) {
       state = items;
       _saveLocal(items);
@@ -50,41 +53,32 @@ class ShopZapNotifier extends StateNotifier<List<ShoppingItem>> {
   void dispose() { _sub?.cancel(); super.dispose(); }
 
   void addItem(ShoppingItem item) {
-    if (_uid != null) {
-      FirestoreService.setShopItem(_uid!, item);
-    } else {
-      state = [...state, item];
-      _saveLocal(state);
-    }
+    state = [...state, item];
+    _saveLocal(state);
+    if (_uid != null) FirestoreService.setShopItem(_uid!, item);
   }
 
   void removeItem(String id) {
-    if (_uid != null) {
-      FirestoreService.deleteShopItem(_uid!, id);
-    } else {
-      state = state.where((i) => i.id != id).toList();
-      _saveLocal(state);
-    }
+    state = state.where((i) => i.id != id).toList();
+    _saveLocal(state);
+    if (_uid != null) FirestoreService.deleteShopItem(_uid!, id);
   }
 
   void toggleItem(String id) {
-    final updated = state.map((i) => i.id == id ? i.copyWith(checked: !i.checked) : i).toList();
+    state = state.map((i) => i.id == id ? i.copyWith(checked: !i.checked) : i).toList();
+    _saveLocal(state);
     if (_uid != null) {
-      final item = updated.firstWhere((i) => i.id == id);
+      final item = state.firstWhere((i) => i.id == id);
       FirestoreService.setShopItem(_uid!, item);
-    } else {
-      state = updated;
-      _saveLocal(state);
     }
   }
 
   void clearChecked() {
     final toDelete = state.where((i) => i.checked).toList();
+    state = state.where((i) => !i.checked).toList();
+    _saveLocal(state);
     if (_uid != null) {
       for (final i in toDelete) FirestoreService.deleteShopItem(_uid!, i.id);
-    } else {
-      state = state.where((i) => !i.checked).toList();
-      _saveLocal(state);
     }
   }
 

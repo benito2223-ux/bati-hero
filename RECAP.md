@@ -6,6 +6,19 @@
 
 ---
 
+## [0.5.3] — 2026-07-07 · Fix articles non-ajoutables / non-cochables (mode connecté)
+
+### 🐛 Bug critique corrigé
+- **Symptôme** : une fois connecté avec Google, impossible d'ajouter un article ou de cocher une case dans Shop-Zap (et pareil en filigrane sur Money-Crunch, Projets, Prix-Hunter).
+- **Cause racine** : tous les providers (`shopZapProvider`, `projectsProvider`, `moneyCrunchProvider`, `priceCompareProvider`) n'appliquaient les actions (ajout/suppression/toggle) **que sur le stream Firestore** quand un utilisateur est connecté — l'état local (`state`) n'était mis à jour qu'en réaction à l'écoute du listener Firestore. Or ce listener passe par un canal web ("Listen channel") qui peut rester instable (boucle de reconnexion) selon le réseau/proxy, empêchant toute mise à jour de revenir côté client — l'UI restait donc figée indéfiniment même si l'écriture avait réussi côté serveur.
+- **Fix** : passage à une stratégie de **mise à jour optimiste** systématique dans les 4 providers — chaque action modifie l'état local ET la persistance locale immédiatement, puis déclenche l'écriture Firestore en tâche de fond (sans bloquer l'UI dessus). Le stream Firestore continue de tourner en arrière-plan pour la réconciliation multi-device, mais n'est plus le seul chemin vers une UI réactive.
+- Confirmé en prod : ajout d'article et coche de checkbox instantanés (< 100ms), compteurs mis à jour immédiatement.
+
+### 🔧 Technique
+- `FirebaseFirestore.instance.settings` : `webExperimentalForceLongPolling: true` + `webExperimentalAutoDetectLongPolling: false` ajouté en prévention (fix standard FlutterFire pour les environnements réseau qui cassent l'auto-détection du canal Firestore Web)
+
+---
+
 ## [0.5.2] — 2026-07-07 · Fix connexion Google (Firebase ne s'initialisait jamais)
 
 ### 🐛 Bug critique corrigé

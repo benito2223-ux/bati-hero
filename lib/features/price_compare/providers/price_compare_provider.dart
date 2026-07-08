@@ -39,46 +39,35 @@ class PriceCompareNotifier extends StateNotifier<List<PriceEntry>> {
   void dispose() { _sub?.cancel(); super.dispose(); }
 
   void addEntry(PriceEntry entry) {
-    if (_uid != null) {
-      FirestoreService.setPriceEntry(_uid!, entry);
-    } else {
-      state = [entry, ...state];
-      _saveLocal(state);
-    }
+    state = [entry, ...state];
+    _saveLocal(state);
+    if (_uid != null) FirestoreService.setPriceEntry(_uid!, entry);
   }
 
   void updateEntry(PriceEntry updated) {
-    if (_uid != null) {
-      FirestoreService.setPriceEntry(_uid!, updated);
-    } else {
-      state = state.map((e) => e.id == updated.id ? updated : e).toList();
-      _saveLocal(state);
-    }
+    state = state.map((e) => e.id == updated.id ? updated : e).toList();
+    _saveLocal(state);
+    if (_uid != null) FirestoreService.setPriceEntry(_uid!, updated);
   }
 
   void removeEntry(String id) {
-    if (_uid != null) {
-      FirestoreService.deletePriceEntry(_uid!, id);
-    } else {
-      state = state.where((e) => e.id != id).toList();
-      _saveLocal(state);
-    }
+    state = state.where((e) => e.id != id).toList();
+    _saveLocal(state);
+    if (_uid != null) FirestoreService.deletePriceEntry(_uid!, id);
   }
 
   void setStorePrice(String entryId, String storeName, double price) {
-    final updated = state.map((e) {
+    state = state.map((e) {
       if (e.id != entryId) return e;
       final prices = e.prices.where((p) => p.storeName != storeName).toList()
         ..add(StorePrice(storeName: storeName, price: price, updatedAt: DateTime.now()));
       return e.copyWith(prices: prices);
     }).toList();
+    _saveLocal(state);
 
     if (_uid != null) {
-      final entry = updated.firstWhere((e) => e.id == entryId);
+      final entry = state.firstWhere((e) => e.id == entryId);
       FirestoreService.setPriceEntry(_uid!, entry);
-    } else {
-      state = updated;
-      _saveLocal(state);
     }
   }
 }

@@ -75,30 +75,21 @@ class MoneyCrunchNotifier extends StateNotifier<MoneyCrunchState> {
   void dispose() { _expSub?.cancel(); _budgetSub?.cancel(); super.dispose(); }
 
   void addExpense(Expense expense) {
-    if (_uid != null) {
-      FirestoreService.setExpense(_uid!, expense);
-    } else {
-      state = state.copyWith(expenses: [...state.expenses, expense]);
-      _persistLocal();
-    }
+    state = state.copyWith(expenses: [...state.expenses, expense]);
+    _persistLocal();
+    if (_uid != null) FirestoreService.setExpense(_uid!, expense);
   }
 
   void removeExpense(String id) {
-    if (_uid != null) {
-      FirestoreService.deleteExpense(_uid!, id);
-    } else {
-      state = state.copyWith(expenses: state.expenses.where((e) => e.id != id).toList());
-      _persistLocal();
-    }
+    state = state.copyWith(expenses: state.expenses.where((e) => e.id != id).toList());
+    _persistLocal();
+    if (_uid != null) FirestoreService.deleteExpense(_uid!, id);
   }
 
   void setBudget(double budget) {
-    if (_uid != null) {
-      FirestoreService.setBudget(_uid!, budget);
-    } else {
-      state = state.copyWith(budget: budget);
-      LocalStorageService.saveDouble(LocalStorageService.kBudget, budget);
-    }
+    state = state.copyWith(budget: budget);
+    LocalStorageService.saveDouble(LocalStorageService.kBudget, budget);
+    if (_uid != null) FirestoreService.setBudget(_uid!, budget);
   }
 
   void _persistLocal() {
