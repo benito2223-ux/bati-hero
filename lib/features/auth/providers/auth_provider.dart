@@ -36,8 +36,19 @@ class AuthService {
         // Web : popup Firebase natif
         final provider = GoogleAuthProvider();
         provider.setCustomParameters({'prompt': 'select_account'});
-        final result = await FirebaseAuth.instance.signInWithPopup(provider);
-        return result.user;
+        try {
+          final result = await FirebaseAuth.instance.signInWithPopup(provider);
+          return result.user;
+        } on FirebaseAuthException catch (e) {
+          // Popup bloqué/fermé par le navigateur → fallback redirection
+          if (e.code == 'popup-blocked' ||
+              e.code == 'popup-closed-by-user' ||
+              e.code == 'cancelled-popup-request') {
+            await FirebaseAuth.instance.signInWithRedirect(provider);
+            return null; // la page va recharger après redirection
+          }
+          rethrow;
+        }
       } else {
         // Mobile : google_sign_in → Firebase credential
         final googleUser = await GoogleSignIn().signIn();

@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_colors.dart';
 import '../../../shared/widgets/power_badge.dart';
@@ -20,8 +22,12 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await AuthService.signInWithGoogle();
       // authStateProvider se met à jour → router redirige automatiquement
+    } on FirebaseAuthException catch (e) {
+      debugPrint('SignIn FirebaseAuthException: ${e.code} — ${e.message}');
+      setState(() => _error = '[${e.code}] ${e.message ?? "Connexion échouée"}');
     } catch (e) {
-      setState(() => _error = 'Connexion échouée. Réessaie !');
+      debugPrint('SignIn error: $e');
+      setState(() => _error = 'Connexion échouée : $e');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -112,15 +118,24 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // Google logo SVG inline
-                            Container(
+                            // Logo "G" Google (couleurs officielles, sans dépendance réseau)
+                            SizedBox(
                               width: 22,
                               height: 22,
-                              decoration: const BoxDecoration(
-                                image: DecorationImage(
-                                  image: NetworkImage(
-                                    'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
-                                  ),
+                              child: Text(
+                                'G',
+                                style: GoogleFonts.roboto(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  foreground: Paint()
+                                    ..shader = const LinearGradient(
+                                      colors: [
+                                        Color(0xFF4285F4),
+                                        Color(0xFFEA4335),
+                                        Color(0xFFFBBC05),
+                                        Color(0xFF34A853),
+                                      ],
+                                    ).createShader(const Rect.fromLTWH(0, 0, 22, 22)),
                                 ),
                               ),
                             ),
